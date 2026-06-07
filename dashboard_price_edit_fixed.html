@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sip & Stroke Caribbean Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#073B4C;--coral:#FF6B4A;--gold:#FFD166;--mint:#00BFA5;--cream:#FFFBF0;--soft:#FFF8E8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Nunito,sans-serif;background:#eef3f4;color:var(--navy)}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#073B4C,#0f2230);padding:24px}
+.login-card{background:white;border-radius:24px;padding:28px;width:100%;max-width:380px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.logo{width:230px;height:92px;object-fit:contain;background:white;border-radius:16px;margin-bottom:12px}
+h1,h2{font-family:Pacifico,cursive}
+input,select,textarea{width:100%;padding:11px 13px;border:2px solid #e3dad1;border-radius:10px;font-family:Nunito,sans-serif;font-size:14px;margin:5px 0 10px}
+textarea{min-height:80px}
+label{font-size:10px;font-weight:900;letter-spacing:.08em;color:#55727d}
+button{border:0;border-radius:999px;padding:10px 16px;font-weight:900;font-family:Nunito,sans-serif;cursor:pointer}
+.primary{background:var(--coral);color:white}.green{background:var(--mint);color:white}.light{background:white;color:var(--coral);border:2px solid var(--coral)}.dark{background:var(--navy);color:white}
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;background:var(--navy);padding:16px;overflow:auto}
+.sidebar img{width:100%;height:88px;object-fit:contain;background:white;border-radius:14px;margin-bottom:16px}
+.navbtn{width:100%;text-align:left;background:transparent;color:rgba(255,255,255,.7);padding:12px;border-radius:10px;margin-bottom:5px}
+.navbtn.active,.navbtn:hover{background:rgba(255,255,255,.12);color:white}
+.main{margin-left:230px;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.row{display:grid;grid-template-columns:120px 1fr 1fr 1fr 110px;gap:10px;align-items:center;border-top:1px solid #eef0f0;padding:12px 0}
+.row img{width:110px;height:76px;object-fit:contain;background:#f6f6f2;border-radius:10px}
+.small{font-size:12px;color:#6b8790;font-weight:800}
+.badge{display:inline-block;padding:4px 9px;border-radius:99px;font-size:10px;font-weight:900}
+.on{background:rgba(0,191,165,.14);color:var(--mint)}.off{background:rgba(255,107,74,.14);color:var(--coral)}
+.page{display:none}.page.active{display:block}
+@media(max-width:800px){.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0}.row{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="login" id="login">
+  <div class="login-card">
+    <img class="logo" src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <h1>Dashboard</h1>
+    <p class="small" style="margin:8px 0 16px">Owner login</p>
+    <input id="pw" type="password" placeholder="Enter password">
+    <button class="primary" style="width:100%" onclick="login()">Log In</button>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="sidebar">
+    <img src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <button class="navbtn active" onclick="showPage('packages',this)">Package Manager</button>
+    <button class="navbtn" onclick="showPage('sessions',this)">Session Manager</button>
+    <button class="navbtn" onclick="showPage('bookings',this)">Bookings</button>
+    <button class="navbtn" onclick="showPage('content',this)">Website Content</button>
+    <button class="navbtn" onclick="showPage('contact',this)">Contact Info</button>
+    <button class="navbtn" onclick="showPage('partners',this)">Resort Partners</button>
+    <button class="navbtn" onclick="showPage('reviews',this)">Reviews</button>
+    <button class="navbtn" onclick="showPage('payments',this)">Payment Settings</button>
+    <button class="navbtn" onclick="location.href='index.html'">← Back to Website</button>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><h1>Business Dashboard</h1><div class="small">Edit the site without touching GitHub code.</div></div>
+      <button class="primary" onclick="saveAll()">Save All Changes</button>
+    </div>
+
+    <section id="packages" class="page active">
+      <div class="card">
+        <h2>Package Manager</h2>
+        <p class="small">Prices saved here will reflect on the website. Couples, Family, and Parent/Daughter are flat price packages.</p>
+      </div>
+      <div id="packageList"></div>
+      <div class="card">
+        <h2>Add New Package</h2>
+        <div class="grid">
+          <div><label>PACKAGE NAME</label><input id="newName" placeholder="Birthday Paint Party"></div>
+          <div><label>UNIT</label><input id="newUnit" placeholder="per group / per person"></div>
+          <div><label>DURATION</label><input id="newDuration" placeholder="2 hours"></div>
+          <div><label>TYPE</label><select id="newType"><option value="solo">Per Guest</option><option value="pair">Flat Pair Price</option><option value="family">Flat Family Price</option><option value="group">Group Per Person Min 6</option><option value="kids">Kids Per Child</option></select></div>
+          <div><label>8x10 PRICE</label><input id="newP8" type="number" placeholder="150"></div>
+          <div><label>11x14 PRICE</label><input id="newP11" type="number" placeholder="170"></div>
+        </div>
+        <label>DESCRIPTION</label><textarea id="newDesc" placeholder="Describe the package"></textarea>
+        <label>IMAGE URL OR UPLOAD</label>
+        <input id="newImgUrl" placeholder="./image.png or paste image URL">
+        <input id="newImgFile" type="file" accept="image/*">
+        <button class="green" onclick="addPackage()">Add Package</button>
+      </div>
+    </section>
+
+    <section id="sessions" class="page">
+      <div class="card"><h2>Session Manager</h2><p class="small">Add future session dates. Past dates auto-hide on the website.</p></div>
+      <div id="sessionList"></div>
+      <div class="card">
+        <div class="grid">
+          <div><label>PACKAGE</label><select id="sessService"></select></div>
+          <div><label>DATE</label><input id="sessDate" type="date"></div>
+          <div><label>TIME</label><input id="sessTime" type="time"></div>
+          <div><label>MAX SLOTS</label><input id="sessMax" type="number" value="10"></div>
+          <div><label>BOOKED</label><input id="sessBooked" type="number" value="0"></div>
+        </div>
+        <button class="green" onclick="addSession()">Add Session</button>
+      </div>
+    </section>
+
+    <section id="bookings" class="page">
+      <div class="card"><h2>Bookings</h2><p class="small">Bookings created on this browser show here.</p></div>
+      <div id="bookingList"></div>
+    </section>
+
+    <section id="content" class="page">
+      <div class="card">
+        <h2>Website Content</h2>
+        <label>HERO TAG</label><input id="heroTag">
+        <label>HERO TITLE</label><input id="heroTitle">
+        <label>HERO SUBTITLE</label><textarea id="heroSub"></textarea>
+        <label>WELCOME TITLE</label><input id="welcomeTitle">
+        <label>WELCOME MESSAGE</label><textarea id="welcomeMsg"></textarea>
+        <label><input id="showReviews" type="checkbox" style="width:auto"> Show Reviews Section</label>
+      </div>
+    </section>
+
+    <section id="contact" class="page">
+      <div class="card">
+        <h2>Contact Information</h2>
+        <div class="grid">
+          <div><label>EMAIL</label><input id="email"></div>
+          <div><label>PHONE</label><input id="phone"></div>
+          <div><label>WHATSAPP</label><input id="whatsapp"></div>
+          <div><label>ADDRESS</label><input id="address"></div>
+          <div><label>INSTAGRAM</label><input id="instagram"></div>
+          <div><label>FACEBOOK</label><input id="facebook"></div>
+          <div><label>TIKTOK</label><input id="tiktok"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="partners" class="page">
+      <div class="card"><h2>Resort Partners</h2></div>
+      <div id="partnerList"></div>
+      <div class="card">
+        <label>RESORT / HOTEL NAME</label><input id="partnerName">
+        <label>DESCRIPTION</label><textarea id="partnerDesc"></textarea>
+        <label>WEBSITE</label><input id="partnerWeb">
+        <button class="green" onclick="addPartner()">Add Partner</button>
+      </div>
+    </section>
+
+    <section id="reviews" class="page">
+      <div class="card"><h2>Reviews</h2></div>
+      <div id="reviewList"></div>
+      <div class="card">
+        <label>CUSTOMER NAME</label><input id="reviewName">
+        <label>RATING</label><select id="reviewRating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+        <label>REVIEW</label><textarea id="reviewText"></textarea>
+        <button class="green" onclick="addReview()">Add Review</button>
+      </div>
+    </section>
+
+    <section id="payments" class="page">
+      <div class="card">
+        <h2>Payment Settings</h2>
+        <p class="small">These are placeholders until real Stripe/PayPal checkout is connected.</p>
+        <label><input id="stripe" type="checkbox" style="width:auto"> Stripe Enabled</label>
+        <label>STRIPE DISPLAY NAME</label><input id="stripeName">
+        <label><input id="paypal" type="checkbox" style="width:auto"> PayPal Enabled</label>
+        <label>PAYPAL DISPLAY NAME</label><input id="paypalName">
+        <label><input id="square" type="checkbox" style="width:auto"> Square Enabled</label>
+        <label>SQUARE DISPLAY NAME</label><input id="squareName">
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const IMG={logo:'./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png',hero:'./39d01f7abfeb50e54e5ab81481fd80d8233236bf0339ba6d2d7c2c936ba2e2fd.png',group:'./68deb8a90498177c24089254cb9937241a1b513acf39160764d000df7e2b946e.png',kids:'./983bc7d94d5c2d47673d32868ffe7dac1d71ca708b8da0e0c70f31ca9df92593.png',family:'./ae820f1ff6cdaea3060e7f1fbcdaf3f6781200743201d72a778b68c6f4d1c428.png',mother:'./95ac79f14f4894531c5ef1bb9b1e005cd1053c35a2755d3a04ba36f7939cb841.png',father:'./d6f477e5408d0727ea9924e128acf14fdbbbc297fb8c0ac0896381cb57acaf95.png'};
+const DEFAULT={content:{heroTag:'SIP • PAINT • CREATE',heroTitle:'Sip & Stroke Caribbean',heroSub:'Paint your memories in paradise. Sip, create, laugh, and take your masterpiece home.',welcomeTitle:'Welcome to Sip & Stroke Caribbean',welcomeMsg:"Create unforgettable memories in paradise. Whether you're celebrating with your partner, family, friends, or children, our guided paint experiences combine Caribbean beauty, great drinks, and lasting memories.",showReviews:false},contact:{email:'info@sipandstrokecaribbean.com',phone:'',whatsapp:'',instagram:'',facebook:'',tiktok:'',address:'St. Lucia / Caribbean Resort Experiences'},payments:{stripe:false,paypal:false,square:false,stripeName:'Stripe',paypalName:'PayPal',squareName:'Square'},services:[{id:'couples',name:'🥂 Couples Sunset',unit:'per couple',duration:'2 hours',price8:180,price11:200,type:'pair',active:true,img:IMG.hero,desc:'A romantic painting experience for two at a breathtaking Caribbean sunset.'},{id:'solo',name:'🐚 Solo Escape',unit:'per person',duration:'2 hours',price8:85,price11:105,type:'solo',active:true,img:IMG.logo,desc:'Your canvas, your vibe. Perfect me-time with drinks included.'},{id:'group',name:'🎉 Private Group / Bachelorette',unit:'per person, minimum 6',duration:'3 hours',price8:150,price11:150,type:'group',active:true,img:IMG.group,desc:'Private session, top shelf drink options, and unforgettable memories.'},{id:'kids',name:'🧒 Kids Session',unit:'per child',duration:'2 hours',price8:40,price11:40,type:'kids',active:true,img:IMG.kids,desc:'Little artists, big smiles. Non-alcoholic drinks for all kids.'},{id:'family',name:'Family Session',unit:'per family',duration:'2 hours',price8:250,price11:270,type:'family',active:true,img:IMG.family,desc:'A creative family experience everyone can enjoy together.'},{id:'mother',name:'Mother / Father & Daughter',unit:'per pair',duration:'2 hours',price8:150,price11:170,type:'pair',active:true,img:IMG.mother,desc:'Create lasting memories with the ones you love most.'}],sessions:[],partners:[],reviews:[],terms:[['🚫','No Refunds','Sessions are non-refundable. Reschedule at least 24 hours in advance.'],['🍷','Alcohol Policy','Alcohol served to guests 21 and older only. Valid government-issued ID required.'],['📸','Photo Privacy','Guest photos will not be used for marketing unless permission is given.'],['👕','Apron Provided','A disposable apron is provided. We are not responsible for clothing damage.'],['🌦️','Venue & Weather','Sessions may be indoors or outdoors depending on weather and resort setup.'],['🖼️','Canvas Policy','Canvas may be prepared from submitted photo. No reprints after session begins.'],['👜','Personal Belongings','We are not responsible for lost, stolen, or damaged belongings.'],['✍️','Authorization','By booking you authorize the charge and agree to these terms.']]};
+function addDays(n){let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function defaultSessions(){return[{serviceId:'couples',date:addDays(3),time:'10:00',max:10,booked:3,active:true},{serviceId:'mother',date:addDays(3),time:'14:00',max:10,booked:4,active:true},{serviceId:'group',date:addDays(4),time:'14:00',max:10,booked:5,active:true},{serviceId:'solo',date:addDays(5),time:'10:00',max:10,booked:0,active:true},{serviceId:'kids',date:addDays(6),time:'14:00',max:10,booked:4,active:true}]}
+function getData(){let d=localStorage.getItem('ssc_site_data_v4');if(!d){let fresh=structuredClone(DEFAULT);fresh.sessions=defaultSessions();localStorage.setItem('ssc_site_data_v4',JSON.stringify(fresh));return fresh}try{return {...structuredClone(DEFAULT),...JSON.parse(d)}}catch(e){return structuredClone(DEFAULT)}}
+function saveData(data){localStorage.setItem('ssc_site_data_v4',JSON.stringify(data))}
+let DATA=getData();
+function login(){if(document.getElementById('pw').value==='Love2026!!'){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';loadAll()}else alert('Wrong password')}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+function saveAll(){collectForm();saveData(DATA);alert('Saved! Refresh the website to see changes.')}
+function collectForm(){DATA.content.heroTag=heroTag.value;DATA.content.heroTitle=heroTitle.value;DATA.content.heroSub=heroSub.value;DATA.content.welcomeTitle=welcomeTitle.value;DATA.content.welcomeMsg=welcomeMsg.value;DATA.content.showReviews=showReviews.checked;DATA.contact={email:email.value,phone:phone.value,whatsapp:whatsapp.value,address:address.value,instagram:instagram.value,facebook:facebook.value,tiktok:tiktok.value};DATA.payments={stripe:stripe.checked,paypal:paypal.checked,square:square.checked,stripeName:stripeName.value,paypalName:paypalName.value,squareName:squareName.value}}
+function loadAll(){renderPackages();renderSessions();renderBookings();renderPartners();renderReviews();loadFormFields()}
+function loadFormFields(){heroTag.value=DATA.content.heroTag;heroTitle.value=DATA.content.heroTitle;heroSub.value=DATA.content.heroSub;welcomeTitle.value=DATA.content.welcomeTitle;welcomeMsg.value=DATA.content.welcomeMsg;showReviews.checked=!!DATA.content.showReviews;email.value=DATA.contact.email||'';phone.value=DATA.contact.phone||'';whatsapp.value=DATA.contact.whatsapp||'';address.value=DATA.contact.address||'';instagram.value=DATA.contact.instagram||'';facebook.value=DATA.contact.facebook||'';tiktok.value=DATA.contact.tiktok||'';stripe.checked=!!DATA.payments.stripe;paypal.checked=!!DATA.payments.paypal;square.checked=!!DATA.payments.square;stripeName.value=DATA.payments.stripeName||'Stripe';paypalName.value=DATA.payments.paypalName||'PayPal';squareName.value=DATA.payments.squareName||'Square';sessService.innerHTML=DATA.services.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+function renderPackages(){packageList.innerHTML=DATA.services.map((s,i)=>`<div class="card"><div class="row"><img src="${s.img||IMG.logo}"><div><label>NAME</label><input value="${escapeHtml(s.name)}" onchange="DATA.services[${i}].name=this.value"><label>DESCRIPTION</label><textarea onchange="DATA.services[${i}].desc=this.value">${escapeHtml(s.desc||'')}</textarea></div><div><label>8x10 PRICE</label><input type="number" value="${s.price8}" onchange="DATA.services[${i}].price8=Number(this.value)"><label>11x14 PRICE</label><input type="number" value="${s.price11}" onchange="DATA.services[${i}].price11=Number(this.value)"></div><div><label>UNIT</label><input value="${escapeHtml(s.unit||'')}" onchange="DATA.services[${i}].unit=this.value"><label>DURATION</label><input value="${escapeHtml(s.duration||'')}" onchange="DATA.services[${i}].duration=this.value"><label>PRICING RULE</label><select onchange="DATA.services[${i}].type=this.value"><option value="solo" ${s.type==='solo'?'selected':''}>Per Guest</option><option value="pair" ${s.type==='pair'?'selected':''}>Flat Pair Price</option><option value="family" ${s.type==='family'?'selected':''}>Flat Family Price</option><option value="group" ${s.type==='group'?'selected':''}>Group Per Person Min 6</option><option value="kids" ${s.type==='kids'?'selected':''}>Kids Per Child</option></select></div><div><span class="badge ${s.active?'on':'off'}">${s.active?'Active':'Hidden'}</span><br><br><button class="light" onclick="togglePackage(${i})">${s.active?'Hide':'Show'}</button><br><br><button class="primary" onclick="saveAll()">Save</button><br><br><input type="file" accept="image/*" onchange="packageImage(${i},this)"><button class="dark" onclick="deletePackage(${i})" style="margin-top:8px">Delete</button></div></div></div>`).join('')}
+function packageImage(i,input){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=e=>{DATA.services[i].img=e.target.result;saveData(DATA);renderPackages();alert('Image saved to package.');};r.readAsDataURL(file)}
+function togglePackage(i){DATA.services[i].active=!DATA.services[i].active;saveData(DATA);renderPackages()}
+function deletePackage(i){if(confirm('Delete this package?')){DATA.services.splice(i,1);saveData(DATA);renderPackages()}}
+function addPackage(){let id='pkg_'+Date.now();let img=newImgUrl.value||IMG.logo;let make=()=>{DATA.services.push({id,name:newName.value||'New Package',unit:newUnit.value||'per booking',duration:newDuration.value||'2 hours',price8:Number(newP8.value||0),price11:Number(newP11.value||newP8.value||0),type:newType.value,active:true,img,desc:newDesc.value||''});saveData(DATA);renderPackages();loadFormFields();alert('Package added.')} ;let file=newImgFile.files[0];if(file){let r=new FileReader();r.onload=e=>{img=e.target.result;make()};r.readAsDataURL(file)}else make()}
+function renderSessions(){sessionList.innerHTML=DATA.sessions.length?DATA.sessions.map((s,i)=>{let svc=DATA.services.find(x=>x.id===s.serviceId);return `<div class="card"><b>${svc?svc.name:s.serviceId}</b><div class="small">${s.date} ${s.time} • Max ${s.max} • Booked ${s.booked}</div><button class="light" onclick="DATA.sessions[${i}].active=!DATA.sessions[${i}].active;saveData(DATA);renderSessions()">${s.active?'Hide':'Show'}</button> <button class="dark" onclick="DATA.sessions.splice(${i},1);saveData(DATA);renderSessions()">Delete</button></div>`}).join(''):'<div class="card">No sessions yet.</div>'}
+function addSession(){DATA.sessions.push({serviceId:sessService.value,date:sessDate.value,time:sessTime.value,max:Number(sessMax.value||10),booked:Number(sessBooked.value||0),active:true});saveData(DATA);renderSessions();alert('Session added.')}
+function renderBookings(){let bookings=JSON.parse(localStorage.getItem('ssc_bookings_v4')||'[]');bookingList.innerHTML=bookings.length?bookings.map(b=>`<div class="card"><b>${b.name}</b><div class="small">${b.serviceName} • ${b.date} ${b.time} • Total $${b.total}</div><div>${b.email} ${b.phone? '• '+b.phone:''}</div></div>`).join(''):'<div class="card">No bookings on this browser yet.</div>'}
+function renderPartners(){partnerList.innerHTML=DATA.partners.length?DATA.partners.map((p,i)=>`<div class="card"><b>${p.name}</b><p class="small">${p.description||''}</p><button class="light" onclick="DATA.partners[${i}].active=DATA.partners[${i}].active===false?true:false;saveData(DATA);renderPartners()">${p.active===false?'Show':'Hide'}</button> <button class="dark" onclick="DATA.partners.splice(${i},1);saveData(DATA);renderPartners()">Delete</button></div>`).join(''):'<div class="card">No partners yet.</div>'}
+function addPartner(){DATA.partners.push({name:partnerName.value,description:partnerDesc.value,website:partnerWeb.value,active:true});saveData(DATA);renderPartners();partnerName.value=partnerDesc.value=partnerWeb.value=''}
+function renderReviews(){reviewList.innerHTML=DATA.reviews.length?DATA.reviews.map((r,i)=>`<div class="card"><b>${r.name}</b><div>${'★'.repeat(Number(r.rating||5))}</div><p>${r.text}</p><button class="light" onclick="DATA.reviews[${i}].active=DATA.reviews[${i}].active===false?true:false;saveData(DATA);renderReviews()">${r.active===false?'Show':'Hide'}</button> <button class="dark" onclick="DATA.reviews.splice(${i},1);saveData(DATA);renderReviews()">Delete</button></div>`).join(''):'<div class="card">No reviews yet.</div>'}
+function addReview(){DATA.reviews.push({name:reviewName.value,rating:Number(reviewRating.value),text:reviewText.value,active:true});saveData(DATA);renderReviews();reviewName.value=reviewText.value=''}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+</script>
+</body>
+</html>
