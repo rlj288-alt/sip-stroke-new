@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sip & Stroke Caribbean Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#073B4C;--coral:#FF6B4A;--gold:#FFD166;--mint:#00BFA5;--cream:#FFFBF0;--soft:#FFF8E8;--gray:#eef3f4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Nunito,sans-serif;background:var(--gray);color:var(--navy)}
+h1,h2,h3{font-family:Pacifico,cursive}
+input,select,textarea{width:100%;padding:11px 13px;border:2px solid #e3dad1;border-radius:10px;font-family:Nunito,sans-serif;font-size:14px;margin:5px 0 10px;background:white}
+textarea{min-height:72px}
+label{font-size:10px;font-weight:900;letter-spacing:.08em;color:#55727d}
+button{border:0;border-radius:999px;padding:10px 16px;font-weight:900;font-family:Nunito,sans-serif;cursor:pointer}
+.primary{background:var(--coral);color:white}.green{background:var(--mint);color:white}.light{background:white;color:var(--coral);border:2px solid var(--coral)}.dark{background:var(--navy);color:white}.gold{background:var(--gold);color:#674400}.redbtn{background:#dc3545;color:white}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#073B4C,#0f2230);padding:24px}
+.login-card{background:white;border-radius:24px;padding:28px;width:100%;max-width:430px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.login-card img{width:260px;height:100px;object-fit:contain;background:white;border-radius:16px;margin-bottom:12px}
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--navy);padding:16px;overflow:auto}
+.sidebar img{width:100%;height:88px;object-fit:contain;background:white;border-radius:14px;margin-bottom:16px}
+.role-badge{background:rgba(255,255,255,.12);color:white;border-radius:12px;padding:10px;margin-bottom:12px;font-size:12px;font-weight:900;text-align:center}
+.navbtn{width:100%;text-align:left;background:transparent;color:rgba(255,255,255,.72);padding:12px;border-radius:10px;margin-bottom:5px}
+.navbtn.active,.navbtn:hover{background:rgba(255,255,255,.13);color:white}
+.main{margin-left:250px;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:white;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.stat .label{font-size:10px;font-weight:900;color:#78919b;letter-spacing:.08em}
+.stat .value{font-family:Pacifico,cursive;font-size:30px;color:var(--navy);margin-top:4px}
+.row{display:grid;grid-template-columns:1fr .8fr .8fr .8fr .8fr;gap:10px;align-items:center;border-top:1px solid #eef0f0;padding:12px 0}
+.row6{grid-template-columns:1fr .8fr .8fr .8fr .8fr .8fr}
+.row4{grid-template-columns:1fr .8fr .8fr .8fr}
+.row img{width:105px;height:76px;object-fit:contain;background:#f6f6f2;border-radius:10px}
+.small{font-size:12px;color:#6b8790;font-weight:800;line-height:1.55}
+.badge{display:inline-block;padding:4px 9px;border-radius:99px;font-size:10px;font-weight:900}
+.b-green{background:rgba(0,191,165,.14);color:var(--mint)}.b-red{background:rgba(255,107,74,.14);color:var(--coral)}.b-yellow{background:rgba(255,209,102,.25);color:#9b6b00}.b-blue{background:rgba(7,59,76,.12);color:var(--navy)}
+.page{display:none}.page.active{display:block}
+.note{background:#FFF8E8;border:1px solid #FFD166;border-radius:14px;padding:14px;margin:12px 0;color:#7a6110;font-weight:800;font-size:12px;line-height:1.6}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{min-height:90px;background:white;border:1px solid #e7eeee;border-radius:12px;padding:8px;font-size:12px}
+.day.blocked{background:#ffe9e3;border-color:#ffb6a6}
+.day .num{font-weight:900}
+.day .items{margin-top:5px;color:#55727d;font-size:10px;line-height:1.4}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0}.row,.row6,.row4{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:flex-start}.calendar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="login" id="loginBox">
+  <div class="login-card">
+    <img src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <h1>Business Dashboard</h1>
+    <p class="small" style="margin:8px 0 16px">Owner and Employee operations portal</p>
+    <select id="roleSelect">
+      <option value="owner">Owner Dashboard</option>
+      <option value="employee">Employee Dashboard</option>
+    </select>
+    <input id="pw" type="password" placeholder="Enter password">
+    <button class="primary" style="width:100%" onclick="doLogin()">Log In</button>
+    
+  </div>
+</div>
+
+<div class="app" id="appBox">
+  <aside class="sidebar">
+    <img src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <div class="role-badge" id="roleBadge">OWNER</div>
+    <div id="navArea"></div>
+    <button class="navbtn" onclick="location.href='index.html'">← Back to Website</button>
+    <button class="navbtn" onclick="location.reload()">Log Out</button>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><h1 id="dashTitle">Dashboard</h1><div class="small">Full operations, bookings, calendar, blackout dates, supplies, print queue, discounts, and analytics.</div></div>
+      <button class="primary" onclick="saveAll()">Save All Changes</button>
+    </div>
+
+    <section id="overview" class="page active">
+      <div class="stats" id="overviewStats"></div>
+      <div class="card"><h2>Today’s Activity</h2><div id="todayActivity"></div></div>
+      <div class="card"><h2>Upcoming Sessions</h2><div id="upcomingSessions"></div></div>
+    </section>
+
+    <section id="bookings" class="page">
+      <div class="card"><h2>Bookings Manager</h2><p class="small">Owner sees full money details. Employee sees paid/pending/cash/card only, not full financial analytics.</p></div>
+      <div id="bookingList"></div>
+      <div class="card">
+        <h2>Add Manual Booking</h2>
+        <div class="grid">
+          <div><label>CUSTOMER NAME</label><input id="manualName"></div>
+          <div><label>EMAIL</label><input id="manualEmail"></div>
+          <div><label>PHONE</label><input id="manualPhone"></div>
+          <div><label>PACKAGE</label><select id="manualService"></select></div>
+          <div><label>SESSION</label><select id="manualSession"></select></div>
+          <div><label>TOTAL</label><input id="manualTotal" type="number"></div>
+          <div><label>PAID STATUS</label><select id="manualPaid"><option>Not Paid</option><option>Paid</option><option>Deposit Paid</option></select></div>
+          <div><label>PAYMENT METHOD</label><select id="manualMethod"><option>Not Selected</option><option>Cash</option><option>Card</option><option>PayPal</option><option>Stripe</option><option>Square</option></select></div>
+        </div>
+        <button class="green" onclick="addManualBooking()">Add Booking</button>
+      </div>
+    </section>
+
+    <section id="sessions" class="page">
+      <div class="card"><h2>Session Manager</h2><p class="small">Add sessions, edit future dates, slot counts, and move customers to another session.</p></div>
+      <div id="sessionList"></div>
+      <div class="card">
+        <h2>Add Session</h2>
+        <div class="grid">
+          <div><label>PACKAGE</label><select id="sessService"></select></div>
+          <div><label>DATE</label><input id="sessDate" type="date"></div>
+          <div><label>TIME</label><input id="sessTime" type="time"></div>
+          <div><label>MAX SLOTS</label><input id="sessMax" type="number" value="10"></div>
+          <div><label>BOOKED</label><input id="sessBooked" type="number" value="0"></div>
+        </div>
+        <button class="green" onclick="addSession()">Add Session</button>
+      </div>
+    </section>
+
+    <section id="calendar" class="page">
+      <div class="card"><h2>Calendar & Blackout Dates</h2><p class="small">Block closed dates, holidays, resort blackout dates, or unavailable days.</p></div>
+      <div class="card">
+        <div class="grid">
+          <div><label>BLACKOUT DATE</label><input id="blackoutDate" type="date"></div>
+          <div><label>REASON</label><input id="blackoutReason" placeholder="Closed / Holiday / Resort unavailable"></div>
+        </div>
+        <button class="primary" onclick="addBlackout()">Add Blackout Date</button>
+      </div>
+      <div id="blackoutList"></div>
+      <div class="card"><h2 id="calendarTitle">Calendar</h2><div class="calendar" id="calendarGrid"></div></div>
+    </section>
+
+    <section id="financials" class="page ownerOnly">
+      <div class="stats" id="financeStats"></div>
+      <div class="card"><h2>Owner Financials</h2><p class="small">Only owner sees daily, weekly, monthly revenue, payment method totals, and expenses.</p></div>
+      <div class="card">
+        <h2>Add Expense</h2>
+        <div class="grid">
+          <div><label>DATE</label><input id="expenseDate" type="date"></div>
+          <div><label>DESCRIPTION</label><input id="expenseDesc"></div>
+          <div><label>AMOUNT</label><input id="expenseAmount" type="number"></div>
+          <div><label>CATEGORY</label><select id="expenseCategory"><option>Supplies</option><option>Payroll</option><option>Resort Fee</option><option>Marketing</option><option>Transportation</option><option>Other</option></select></div>
+        </div>
+        <button class="green" onclick="addExpense()">Add Expense</button>
+      </div>
+      <div id="expenseList"></div>
+    </section>
+
+    <section id="analytics" class="page ownerOnly">
+      <div class="card"><h2>Owner Analytics</h2><p class="small">Daily, weekly, monthly bookings, paid totals, unpaid totals, package performance, cash/card breakdown.</p></div>
+      <div class="stats" id="analyticsStats"></div>
+      <div class="card"><h2>Package Performance</h2><div id="packageAnalytics"></div></div>
+      <div class="card"><h2>Payment Breakdown</h2><div id="paymentAnalytics"></div></div>
+    </section>
+
+    <section id="employee-today" class="page">
+      <div class="stats" id="employeeStats"></div>
+      <div class="card"><h2>Employee Today</h2><p class="small">Employee can see today's bookings, paid/pending, and cash/card status. No owner financial analytics.</p></div>
+      <div id="employeeTodayList"></div>
+    </section>
+
+    <section id="canvas" class="page">
+      <div class="card"><h2>Canvas Print Queue</h2><p class="small">Track pictures that need to be reviewed, outlined, printed, or completed.</p></div>
+      <div id="canvasList"></div>
+      <div class="card">
+        <h2>Add Canvas Request</h2>
+        <div class="grid">
+          <div><label>CUSTOMER</label><input id="canvasCustomer"></div>
+          <div><label>CANVAS SIZE</label><select id="canvasSize"><option>8x10</option><option>11x14</option><option>16x20</option></select></div>
+          <div><label>TYPE</label><select id="canvasType"><option>Customer Upload</option><option>Design Library</option></select></div>
+          <div><label>STATUS</label><select id="canvasStatus"><option>Needs Review</option><option>Outline Needed</option><option>Ready To Print</option><option>Printed</option><option>Completed</option></select></div>
+        </div>
+        <label>UPLOAD PHOTO</label><input id="canvasFile" type="file" accept="image/*">
+        <button class="green" onclick="addCanvasRequest()">Add Canvas</button>
+      </div>
+    </section>
+
+    <section id="inventory" class="page">
+      <div class="card"><h2>Supplies & Ordering</h2><p class="small">Supply list, low stock, and things that need to be ordered.</p></div>
+      <div id="inventoryList"></div>
+      <div class="card">
+        <h2>Add Supply</h2>
+        <div class="grid">
+          <div><label>ITEM</label><input id="supplyName"></div>
+          <div><label>QUANTITY</label><input id="supplyQty" type="number"></div>
+          <div><label>MINIMUM NEEDED</label><input id="supplyMin" type="number"></div>
+          <div><label>CATEGORY</label><select id="supplyCategory"><option>Canvas</option><option>Paint</option><option>Brushes</option><option>Drinks</option><option>Aprons</option><option>Office</option><option>Other</option></select></div>
+        </div>
+        <button class="green" onclick="addSupply()">Add Supply</button>
+      </div>
+    </section>
+
+
+    <section id="supplies-used" class="page">
+      <div class="card">
+        <h2>Supplies Used / Reorder Needed</h2>
+        <p class="small">Employees can record what was used after each session. The dashboard calculates what is left and shows what needs to be ordered.</p>
+      </div>
+
+      <div class="card">
+        <h2>Record Supplies Used</h2>
+        <div class="grid">
+          <div><label>ITEM</label><select id="usedSupplyItem"></select></div>
+          <div><label>QUANTITY USED</label><input id="usedQty" type="number" value="1"></div>
+          <div><label>SESSION / JOB NOTES</label><input id="usedNotes" placeholder="Couples Sunset, Kids Session, Private Group, etc."></div>
+          <div><label>DATE USED</label><input id="usedDate" type="date"></div>
+        </div>
+        <button class="green" onclick="recordSupplyUsed()">Record Used</button>
+      </div>
+
+      <div class="card">
+        <h2>Reorder Needed</h2>
+        <div id="reorderNeededList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Usage History</h2>
+        <div id="supplyUsageHistory"></div>
+      </div>
+    </section>
+
+    <section id="discounts" class="page">
+      <div class="card"><h2>Approved Discounts</h2><p class="small">Create owner-approved discount codes that staff can apply to bookings.</p></div>
+      <div id="discountList"></div>
+      <div class="card">
+        <h2>Add Discount</h2>
+        <div class="grid">
+          <div><label>CODE</label><input id="discountCode" placeholder="RESORT20"></div>
+          <div><label>TYPE</label><select id="discountType"><option value="percent">Percent Off</option><option value="flat">Dollar Off</option></select></div>
+          <div><label>VALUE</label><input id="discountValue" type="number"></div>
+          <div><label>APPROVED BY</label><input id="discountApproved" placeholder="Owner"></div>
+        </div>
+        <button class="green" onclick="addDiscount()">Add Discount</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const IMG={logo:'./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png',hero:'./39d01f7abfeb50e54e5ab81481fd80d8233236bf0339ba6d2d7c2c936ba2e2fd.png',group:'./68deb8a90498177c24089254cb9937241a1b513acf39160764d000df7e2b946e.png',kids:'./983bc7d94d5c2d47673d32868ffe7dac1d71ca708b8da0e0c70f31ca9df92593.png',family:'./ae820f1ff6cdaea3060e7f1fbcdaf3f6781200743201d72a778b68c6f4d1c428.png',mother:'./95ac79f14f4894531c5ef1bb9b1e005cd1053c35a2755d3a04ba36f7939cb841.png',father:'./d6f477e5408d0727ea9924e128acf14fdbbbc297fb8c0ac0896381cb57acaf95.png'};
+const DEFAULT_SERVICES=[{id:'couples',name:'🥂 Couples Sunset',price8:180,price11:200,type:'pair',active:true},{id:'solo',name:'🐚 Solo Escape',price8:85,price11:105,type:'solo',active:true},{id:'group',name:'🎉 Private Group',price8:150,price11:150,type:'group',active:true},{id:'kids',name:'🧒 Kids Session',price8:40,price11:40,type:'kids',active:true},{id:'family',name:'Family Session',price8:250,price11:270,type:'family',active:true},{id:'mother',name:'Mother / Father & Daughter',price8:150,price11:170,type:'pair',active:true}];
+function addDays(n){let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function money(n){return '$'+Number(n||0).toLocaleString()}
+function today(){return new Date().toISOString().slice(0,10)}
+function get(k,def){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(def))}catch(e){return def}}
+function set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function siteData(){let d=get('ssc_site_data_v4',{});if(!d.services)d.services=DEFAULT_SERVICES;if(!d.sessions)d.sessions=[{serviceId:'couples',date:addDays(1),time:'10:00',max:10,booked:3,active:true},{serviceId:'group',date:addDays(2),time:'14:00',max:10,booked:5,active:true},{serviceId:'kids',date:addDays(3),time:'14:00',max:10,booked:4,active:true}];return d}
+function saveSite(d){set('ssc_site_data_v4',d)}
+let ROLE='owner',DATA=siteData();
+function bookings(){return get('ssc_bookings_v4',[])}
+function saveBookings(v){set('ssc_bookings_v4',v)}
+function expenses(){return get('ssc_expenses_v1',[])}
+function saveExpenses(v){set('ssc_expenses_v1',v)}
+function inventory(){return get('ssc_inventory_v1',[{name:'8x10 Canvas',qty:5,min:10,category:'Canvas'},{name:'11x14 Canvas',qty:22,min:10,category:'Canvas'},{name:'Paint Sets',qty:15,min:8,category:'Paint'},{name:'White Wine',qty:3,min:12,category:'Drinks'},{name:'Aprons',qty:40,min:20,category:'Aprons'}])}
+function saveInventory(v){set('ssc_inventory_v1',v)}
+function discounts(){return get('ssc_discounts_v1',[{code:'WELCOME10',type:'percent',value:10,approved:'Owner',active:true}])}
+function saveDiscounts(v){set('ssc_discounts_v1',v)}
+function blackouts(){return get('ssc_blackouts_v1',[])}
+function saveBlackouts(v){set('ssc_blackouts_v1',v)}
+function canvases(){return get('ssc_canvas_v1',[])}
+function saveCanvases(v){set('ssc_canvas_v1',v)}
+function doLogin(){let r=roleSelect.value,p=pw.value;if((r==='owner'&&p==='Love2026!!')||(r==='employee'&&p==='Staff2026!!')){ROLE=r;loginBox.style.display='none';appBox.style.display='block';buildNav();loadAll()}else alert('Wrong password')}
+function buildNav(){let owner=[['overview','Overview'],['bookings','Bookings'],['sessions','Sessions'],['calendar','Calendar / Blackout'],['financials','Financials'],['analytics','Analytics'],['canvas','Canvas Print Queue'],['inventory','Supplies / Orders'],['supplies-used','Supplies Used / Reorder'],['discounts','Discounts']];let emp=[['employee-today','Today / Payments'],['bookings','Bookings'],['sessions','Sessions'],['calendar','Calendar'],['canvas','Canvas Print Queue'],['inventory','Supplies'],['supplies-used','Supplies Used'],['discounts','Approved Discounts']];let list=ROLE==='owner'?owner:emp;roleBadge.textContent=ROLE==='owner'?'OWNER DASHBOARD':'EMPLOYEE DASHBOARD';dashTitle.textContent=ROLE==='owner'?'Owner Dashboard':'Employee Dashboard';navArea.innerHTML=list.map((x,i)=>`<button class="navbtn ${i===0?'active':''}" onclick="showPage('${x[0]}',this)">${x[1]}</button>`).join('');showPage(list[0][0],navArea.querySelector('button'))}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');loadAll()}
+function saveAll(){saveSite(DATA);alert('Saved.')}
+function loadAll(){DATA=siteData();fillSelects();renderOverview();renderBookings();renderSessions();renderCalendar();renderFinancials();renderAnalytics();renderEmployee();renderCanvas();renderInventory();renderSuppliesUsed();renderDiscounts()}
+function fillSelects(){let opts=DATA.services.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');['manualService','sessService'].forEach(id=>{let e=document.getElementById(id);if(e)e.innerHTML=opts});let sess=DATA.sessions.map((s,i)=>{let svc=DATA.services.find(x=>x.id===s.serviceId);return `<option value="${i}">${s.date} ${s.time} - ${svc?svc.name:s.serviceId}</option>`}).join('');let ms=document.getElementById('manualSession');if(ms)ms.innerHTML=sess}
+function svcName(id){let s=DATA.services.find(x=>x.id===id);return s?s.name:id}
+function bookingDate(b){return b.date||today()}
+function isToday(b){return bookingDate(b)===today()}
+function weekStart(d=new Date()){let x=new Date(d);x.setDate(x.getDate()-x.getDay());x.setHours(0,0,0,0);return x}
+function inWeek(date){let d=new Date(date+'T00:00'), w=weekStart();return d>=w}
+function inMonth(date){let d=new Date(date+'T00:00'), n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear()}
+function paidBookings(){return bookings().filter(b=>b.paidStatus==='Paid'||b.status==='Paid')}
+function totalPaid(filter=()=>true){return paidBookings().filter(filter).reduce((a,b)=>a+Number(b.total||0),0)}
+function totalUnpaid(){return bookings().filter(b=>b.paidStatus!=='Paid'&&b.status!=='Paid').reduce((a,b)=>a+Number(b.total||0),0)}
+function renderStats(el,items){el.innerHTML=items.map(x=>`<div class="stat"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="small">${x[2]||''}</div></div>`).join('')}
+function renderOverview(){if(!overviewStats)return;let b=bookings();renderStats(overviewStats,[['TODAY BOOKINGS',b.filter(isToday).length,'bookings today'],['TODAY PAID',money(totalPaid(isToday)),'paid revenue'],['WEEKLY PAID',money(totalPaid(x=>inWeek(bookingDate(x)))),'this week'],['MONTHLY PAID',money(totalPaid(x=>inMonth(bookingDate(x)))),'this month'],['UNPAID',money(totalUnpaid()),'pending money']]);todayActivity.innerHTML=b.filter(isToday).length?b.filter(isToday).map(b=>bookingRow(b)).join(''):'<div class="small">No bookings today yet.</div>';upcomingSessions.innerHTML=DATA.sessions.filter(s=>s.active&&s.date>=today()).map(s=>`<div class="row row4"><b>${svcName(s.serviceId)}</b><span>${s.date}</span><span>${s.time}</span><span>${Math.max(0,s.max-s.booked)} open</span></div>`).join('')||'<div class="small">No upcoming sessions.</div>'}
+function bookingRow(b,i){let paid=b.paidStatus||b.status||'Not Paid';let badge=paid==='Paid'?'b-green':paid==='Deposit Paid'?'b-yellow':'b-red';return `<div class="row row6"><div><b>${b.name||'Customer'}</b><div class="small">${b.email||''} ${b.phone||''}</div></div><div>${b.serviceName||svcName(b.serviceId)}</div><div>${bookingDate(b)} ${b.time||''}</div><div><span class="badge ${badge}">${paid}</span><div class="small">${b.paymentMethod||'Not Selected'}</div></div><div>${ROLE==='owner'?money(b.total):'Payment status only'}</div><div>${i!==undefined?bookingActions(i):''}</div></div>`}
+function bookingActions(i){let sessOpts=DATA.sessions.map((s,idx)=>`<option value="${idx}">${s.date} ${s.time} - ${svcName(s.serviceId)}</option>`).join('');return `<select onchange="moveBooking(${i},this.value)"><option value="">Move Session</option>${sessOpts}</select><select onchange="updatePaid(${i},this.value)"><option>Update Pay</option><option>Paid</option><option>Not Paid</option><option>Deposit Paid</option></select><select onchange="updateMethod(${i},this.value)"><option>Method</option><option>Cash</option><option>Card</option><option>PayPal</option><option>Stripe</option><option>Square</option></select>`}
+function renderBookings(){if(!bookingList)return;let b=bookings();bookingList.innerHTML=b.length?b.map((x,i)=>bookingRow(x,i)).join(''):'<div class="card">No bookings yet.</div>'}
+function addManualBooking(){let bs=bookings(),si=Number(manualSession.value),sess=DATA.sessions[si],svc=DATA.services.find(s=>s.id===manualService.value);bs.unshift({name:manualName.value,email:manualEmail.value,phone:manualPhone.value,serviceId:manualService.value,serviceName:svc?svc.name:'',date:sess?sess.date:today(),time:sess?sess.time:'',sessionIndex:si,total:Number(manualTotal.value||0),paidStatus:manualPaid.value,paymentMethod:manualMethod.value,created:new Date().toISOString()});saveBookings(bs);if(sess){DATA.sessions[si].booked=Number(DATA.sessions[si].booked||0)+1;saveSite(DATA)}loadAll()}
+function moveBooking(i,si){if(si==='')return;let bs=bookings(),sess=DATA.sessions[Number(si)];bs[i].sessionIndex=Number(si);bs[i].date=sess.date;bs[i].time=sess.time;bs[i].serviceId=sess.serviceId;bs[i].serviceName=svcName(sess.serviceId);saveBookings(bs);loadAll()}
+function updatePaid(i,v){let bs=bookings();bs[i].paidStatus=v;saveBookings(bs);loadAll()}
+function updateMethod(i,v){let bs=bookings();bs[i].paymentMethod=v;saveBookings(bs);loadAll()}
+function renderSessions(){if(!sessionList)return;sessionList.innerHTML=DATA.sessions.length?DATA.sessions.map((s,i)=>`<div class="card"><div class="grid"><div><label>PACKAGE</label><select onchange="DATA.sessions[${i}].serviceId=this.value">${DATA.services.map(x=>`<option value="${x.id}" ${x.id===s.serviceId?'selected':''}>${x.name}</option>`).join('')}</select></div><div><label>DATE</label><input type="date" value="${s.date}" onchange="DATA.sessions[${i}].date=this.value"></div><div><label>TIME</label><input type="time" value="${s.time}" onchange="DATA.sessions[${i}].time=this.value"></div><div><label>MAX</label><input type="number" value="${s.max}" onchange="DATA.sessions[${i}].max=Number(this.value)"></div><div><label>BOOKED</label><input type="number" value="${s.booked}" onchange="DATA.sessions[${i}].booked=Number(this.value)"></div></div><button class="light" onclick="DATA.sessions[${i}].active=!DATA.sessions[${i}].active;saveSite(DATA);loadAll()">${s.active?'Hide':'Show'}</button> <button class="redbtn" onclick="DATA.sessions.splice(${i},1);saveSite(DATA);loadAll()">Delete</button></div>`).join(''):'<div class="card">No sessions yet.</div>'}
+function addSession(){DATA.sessions.push({serviceId:sessService.value,date:sessDate.value,time:sessTime.value,max:Number(sessMax.value||10),booked:Number(sessBooked.value||0),active:true});saveSite(DATA);loadAll()}
+function renderCalendar(){if(!calendarGrid)return;let now=new Date(),y=now.getFullYear(),m=now.getMonth();calendarTitle.textContent=now.toLocaleString('default',{month:'long',year:'numeric'});let first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),bl=blackouts();let cells=[];for(let i=0;i<first;i++)cells.push('<div></div>');for(let d=1;d<=days;d++){let date=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,blocked=bl.find(b=>b.date===date),sess=DATA.sessions.filter(s=>s.date===date);cells.push(`<div class="day ${blocked?'blocked':''}"><div class="num">${d}</div>${blocked?`<div class="items">BLACKOUT: ${blocked.reason}</div>`:''}<div class="items">${sess.map(s=>`${s.time} ${svcName(s.serviceId)}`).join('<br>')}</div></div>`)}calendarGrid.innerHTML=cells.join('');blackoutList.innerHTML=bl.length?bl.map((b,i)=>`<div class="card"><b>${b.date}</b> - ${b.reason} <button class="redbtn" onclick="let x=blackouts();x.splice(${i},1);saveBlackouts(x);loadAll()">Delete</button></div>`).join(''):'<div class="card">No blackout dates.</div>'}
+function addBlackout(){let b=blackouts();b.push({date:blackoutDate.value,reason:blackoutReason.value});saveBlackouts(b);loadAll()}
+function renderFinancials(){if(!financeStats)return;let ex=expenses();renderStats(financeStats,[['TODAY PAID',money(totalPaid(isToday))],['WEEK PAID',money(totalPaid(x=>inWeek(bookingDate(x))))],['MONTH PAID',money(totalPaid(x=>inMonth(bookingDate(x))))],['UNPAID',money(totalUnpaid())],['EXPENSES',money(ex.reduce((a,e)=>a+Number(e.amount||0),0))]]);expenseList.innerHTML=ex.length?ex.map((e,i)=>`<div class="row row4"><b>${e.desc}</b><span>${e.date}</span><span>${e.category}</span><span>${money(e.amount)} <button class="redbtn" onclick="let x=expenses();x.splice(${i},1);saveExpenses(x);loadAll()">Delete</button></span></div>`).join(''):'<div class="card">No expenses.</div>'}
+function addExpense(){let e=expenses();e.unshift({date:expenseDate.value||today(),desc:expenseDesc.value,amount:Number(expenseAmount.value||0),category:expenseCategory.value});saveExpenses(e);loadAll()}
+function renderAnalytics(){if(!analyticsStats)return;let b=bookings();renderStats(analyticsStats,[['DAILY BOOKINGS',b.filter(isToday).length],['WEEK BOOKINGS',b.filter(x=>inWeek(bookingDate(x))).length],['MONTH BOOKINGS',b.filter(x=>inMonth(bookingDate(x))).length],['PAID IN FULL',b.filter(x=>(x.paidStatus||x.status)==='Paid').length],['PENDING',b.filter(x=>(x.paidStatus||x.status)!=='Paid').length]]);let counts={};b.forEach(x=>{let n=x.serviceName||svcName(x.serviceId);counts[n]=(counts[n]||0)+1});packageAnalytics.innerHTML=Object.keys(counts).map(k=>`<div class="row row4"><b>${k}</b><span>${counts[k]} bookings</span><span></span><span></span></div>`).join('')||'<div class="small">No package data.</div>';let methods={};b.forEach(x=>{let m=x.paymentMethod||'Not Selected';methods[m]=(methods[m]||0)+Number(x.total||0)});paymentAnalytics.innerHTML=Object.keys(methods).map(k=>`<div class="row row4"><b>${k}</b><span>${money(methods[k])}</span><span></span><span></span></div>`).join('')||'<div class="small">No payment data.</div>'}
+function renderEmployee(){if(!employeeStats)return;let b=bookings().filter(isToday);renderStats(employeeStats,[['TODAY BOOKINGS',b.length],['PAID IN FULL',b.filter(x=>(x.paidStatus||x.status)==='Paid').length],['PENDING',b.filter(x=>(x.paidStatus||x.status)!=='Paid').length],['CASH/CARD',b.filter(x=>['Cash','Card'].includes(x.paymentMethod)).length]]);employeeTodayList.innerHTML=b.length?b.map((x,i)=>bookingRow(x,i)).join(''):'<div class="card">No bookings today.</div>'}
+function renderCanvas(){if(!canvasList)return;let c=canvases();canvasList.innerHTML=c.length?c.map((x,i)=>`<div class="card"><div class="row row4"><div>${x.img?`<img src="${x.img}">`:''}<b>${x.customer}</b><div class="small">${x.type} • ${x.size}</div></div><span>${x.status}</span><select onchange="let a=canvases();a[${i}].status=this.value;saveCanvases(a);loadAll()"><option>Status</option><option>Needs Review</option><option>Outline Needed</option><option>Ready To Print</option><option>Printed</option><option>Completed</option></select><span>${x.img?`<a download="canvas-${i}.png" href="${x.img}">Download</a>`:''}</span></div></div>`).join(''):'<div class="card">No canvases in queue.</div>'}
+function addCanvasRequest(){let file=canvasFile.files[0],make=(img='')=>{let c=canvases();c.unshift({customer:canvasCustomer.value,size:canvasSize.value,type:canvasType.value,status:canvasStatus.value,img,date:today()});saveCanvases(c);loadAll()};if(file){let r=new FileReader();r.onload=e=>make(e.target.result);r.readAsDataURL(file)}else make()}
+function renderInventory(){if(!inventoryList)return;let inv=inventory();inventoryList.innerHTML=inv.map((x,i)=>{let low=Number(x.qty)<=Number(x.min);return `<div class="row row4"><b>${low?'LOW: ':''}${x.name}</b><span>${x.category}</span><span>Qty <input type="number" value="${x.qty}" onchange="let a=inventory();a[${i}].qty=Number(this.value);saveInventory(a);loadAll()"></span><span>Min ${x.min} ${low?'<span class="badge b-red">ORDER</span>':'<span class="badge b-green">OK</span>'} <button class="redbtn" onclick="let a=inventory();a.splice(${i},1);saveInventory(a);loadAll()">Delete</button></span></div>`}).join('')}
+function addSupply(){let inv=inventory();inv.push({name:supplyName.value,qty:Number(supplyQty.value||0),min:Number(supplyMin.value||0),category:supplyCategory.value});saveInventory(inv);loadAll()}
+
+function supplyUsage(){return get('ssc_supply_usage_v1',[])}
+function saveSupplyUsage(v){set('ssc_supply_usage_v1',v)}
+function renderSuppliesUsed(){
+  let itemSelect=document.getElementById('usedSupplyItem');
+  if(!itemSelect)return;
+  let inv=inventory();
+  itemSelect.innerHTML=inv.map((x,i)=>`<option value="${i}">${x.name} - Left: ${x.qty}</option>`).join('');
+  if(document.getElementById('usedDate') && !usedDate.value) usedDate.value=today();
+
+  let reorder=inv.filter(x=>Number(x.qty)<=Number(x.min));
+  reorderNeededList.innerHTML=reorder.length
+    ? reorder.map(x=>`<div class="row row4"><b>${x.name}</b><span>Left: ${x.qty}</span><span>Minimum: ${x.min}</span><span><span class="badge b-red">ORDER NOW</span></span></div>`).join('')
+    : '<div class="small">No reorder needed right now.</div>';
+
+  let hist=supplyUsage();
+  supplyUsageHistory.innerHTML=hist.length
+    ? hist.map((x,i)=>`<div class="row row4"><b>${x.item}</b><span>Used: ${x.qty}</span><span>${x.date}</span><span>${x.notes||''} <button class="redbtn" onclick="deleteSupplyUsage(${i})">Delete</button></span></div>`).join('')
+    : '<div class="small">No supplies used have been recorded yet.</div>';
+}
+function recordSupplyUsed(){
+  let idx=Number(usedSupplyItem.value);
+  let qty=Number(usedQty.value||0);
+  if(isNaN(idx)||qty<=0){alert('Please select an item and quantity used.');return}
+  let inv=inventory();
+  let item=inv[idx];
+  if(!item){alert('Supply item not found.');return}
+  item.qty=Math.max(0,Number(item.qty||0)-qty);
+  saveInventory(inv);
+  let hist=supplyUsage();
+  hist.unshift({item:item.name,qty:qty,date:usedDate.value||today(),notes:usedNotes.value});
+  saveSupplyUsage(hist);
+  usedQty.value=1;
+  usedNotes.value='';
+  loadAll();
+}
+function deleteSupplyUsage(i){
+  let hist=supplyUsage();
+  hist.splice(i,1);
+  saveSupplyUsage(hist);
+  loadAll();
+}
+
+function renderDiscounts(){if(!discountList)return;let d=discounts();discountList.innerHTML=d.length?d.map((x,i)=>`<div class="row row4"><b>${x.code}</b><span>${x.type==='percent'?x.value+'%':'$'+x.value} off</span><span>Approved: ${x.approved}</span><span><button class="light" onclick="let a=discounts();a[${i}].active=!a[${i}].active;saveDiscounts(a);loadAll()">${x.active?'Active':'Inactive'}</button> <button class="redbtn" onclick="let a=discounts();a.splice(${i},1);saveDiscounts(a);loadAll()">Delete</button></span></div>`).join(''):'<div class="card">No discounts.</div>'}
+function addDiscount(){let d=discounts();d.push({code:discountCode.value,type:discountType.value,value:Number(discountValue.value||0),approved:discountApproved.value||'Owner',active:true});saveDiscounts(d);loadAll()}
+</script>
+</body>
+</html>
