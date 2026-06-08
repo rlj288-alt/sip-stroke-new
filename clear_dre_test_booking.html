@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Clear Test Booking</title>
+<style>
+body{font-family:Arial,sans-serif;background:#073B4C;color:white;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.card{background:white;color:#073B4C;border-radius:18px;padding:28px;max-width:520px;text-align:center;box-shadow:0 15px 45px rgba(0,0,0,.3)}
+button{background:#FF6B4A;color:white;border:0;border-radius:999px;padding:14px 22px;font-weight:bold;cursor:pointer;margin:8px}
+.small{font-size:13px;color:#5d747c;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Clear Test Booking</h1>
+<p>This will remove the visible test booking named <b>dre</b> from Bookings and the matching archive record.</p>
+<button onclick="clearTest()">Clear Dre Test Booking</button>
+<button onclick="location.href='dashboard.html'">Back to Dashboard</button>
+<p id="msg" class="small"></p>
+</div>
+<script>
+function clearTest(){
+  let bookings = JSON.parse(localStorage.getItem('ssc_bookings_v4') || '[]');
+  let beforeB = bookings.length;
+  bookings = bookings.filter(b => {
+    let name = String(b.name || '').toLowerCase().trim();
+    let email = String(b.email || '').toLowerCase().trim();
+    return !(name === 'dre' || name.includes('dre') || email === 'rlj288@gmail.com');
+  });
+  localStorage.setItem('ssc_bookings_v4', JSON.stringify(bookings));
+
+  let archive = JSON.parse(localStorage.getItem('ssc_booking_archive_v1') || '[]');
+  let beforeA = archive.length;
+  archive = archive.filter(a => {
+    let name = String(a.name || '').toLowerCase().trim();
+    let email = String(a.email || '').toLowerCase().trim();
+    return !(name === 'dre' || name.includes('dre') || email === 'rlj288@gmail.com');
+  });
+  localStorage.setItem('ssc_booking_archive_v1', JSON.stringify(archive));
+
+  document.getElementById('msg').innerHTML =
+    'Removed ' + (beforeB - bookings.length) + ' booking(s) and ' +
+    (beforeA - archive.length) + ' archive record(s). Go back to dashboard and refresh.';
+}
+</script>
+</body>
+</html>
