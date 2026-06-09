@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sip & Stroke Caribbean Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#073B4C;--coral:#FF6B4A;--gold:#FFD166;--mint:#00BFA5;--cream:#FFFBF0;--soft:#FFF8E8;--gray:#eef3f4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Nunito,sans-serif;background:var(--gray);color:var(--navy)}
+h1,h2,h3{font-family:Pacifico,cursive}
+input,select,textarea{width:100%;padding:11px 13px;border:2px solid #e3dad1;border-radius:10px;font-family:Nunito,sans-serif;font-size:14px;margin:5px 0 10px;background:white}
+textarea{min-height:72px}
+label{font-size:10px;font-weight:900;letter-spacing:.08em;color:#55727d}
+button{border:0;border-radius:999px;padding:10px 16px;font-weight:900;font-family:Nunito,sans-serif;cursor:pointer}
+.primary{background:var(--coral);color:white}.green{background:var(--mint);color:white}.light{background:white;color:var(--coral);border:2px solid var(--coral)}.dark{background:var(--navy);color:white}.gold{background:var(--gold);color:#674400}.redbtn{background:#dc3545;color:white}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#073B4C,#0f2230);padding:24px}
+.login-card{background:white;border-radius:24px;padding:28px;width:100%;max-width:430px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.login-card img{width:260px;height:100px;object-fit:contain;background:white;border-radius:16px;margin-bottom:12px}
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--navy);padding:16px;overflow:auto}
+.sidebar img{width:100%;height:88px;object-fit:contain;background:white;border-radius:14px;margin-bottom:16px}
+.role-badge{background:rgba(255,255,255,.12);color:white;border-radius:12px;padding:10px;margin-bottom:12px;font-size:12px;font-weight:900;text-align:center}
+.navbtn{width:100%;text-align:left;background:transparent;color:rgba(255,255,255,.72);padding:12px;border-radius:10px;margin-bottom:5px}
+.navbtn.active,.navbtn:hover{background:rgba(255,255,255,.13);color:white}
+.main{margin-left:250px;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.07);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:white;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.stat .label{font-size:10px;font-weight:900;color:#78919b;letter-spacing:.08em}
+.stat .value{font-family:Pacifico,cursive;font-size:30px;color:var(--navy);margin-top:4px}
+.row{display:grid;grid-template-columns:1fr .8fr .8fr .8fr .8fr;gap:10px;align-items:center;border-top:1px solid #eef0f0;padding:12px 0}
+.row6{grid-template-columns:1fr .8fr .8fr .8fr .8fr .8fr}
+.row4{grid-template-columns:1fr .8fr .8fr .8fr}
+.row img{width:105px;height:76px;object-fit:contain;background:#f6f6f2;border-radius:10px}
+.small{font-size:12px;color:#6b8790;font-weight:800;line-height:1.55}
+.badge{display:inline-block;padding:4px 9px;border-radius:99px;font-size:10px;font-weight:900}
+.b-green{background:rgba(0,191,165,.14);color:var(--mint)}.b-red{background:rgba(255,107,74,.14);color:var(--coral)}.b-yellow{background:rgba(255,209,102,.25);color:#9b6b00}.b-blue{background:rgba(7,59,76,.12);color:var(--navy)}
+.page{display:none}.page.active{display:block}
+.note{background:#FFF8E8;border:1px solid #FFD166;border-radius:14px;padding:14px;margin:12px 0;color:#7a6110;font-weight:800;font-size:12px;line-height:1.6}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{min-height:90px;background:white;border:1px solid #e7eeee;border-radius:12px;padding:8px;font-size:12px}
+.day.blocked{background:#ffe9e3;border-color:#ffb6a6}
+.day .num{font-weight:900}
+.day .items{margin-top:5px;color:#55727d;font-size:10px;line-height:1.4}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0}.row,.row6,.row4{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:flex-start}.calendar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="login" id="loginBox">
+  <div class="login-card">
+    <img src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <h1>Business Dashboard</h1>
+    <p class="small" style="margin:8px 0 16px">Owner and Employee operations portal</p>
+    <select id="roleSelect">
+      <option value="owner">Owner Dashboard</option>
+      <option value="employee">Employee Dashboard</option>
+    </select>
+    <input id="pw" type="password" placeholder="Enter password">
+    <button class="primary" style="width:100%" onclick="doLogin()">Log In</button>
+    
+  </div>
+</div>
+
+<div class="app" id="appBox">
+  <aside class="sidebar">
+    <img src="./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png">
+    <div class="role-badge" id="roleBadge">OWNER</div>
+    <div id="navArea"></div>
+    <button class="navbtn" onclick="location.href='index.html'">← Back to Website</button>
+    <button class="navbtn" onclick="location.reload()">Log Out</button>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><h1 id="dashTitle">Dashboard</h1><div class="small">Full operations, bookings, calendar, blackout dates, supplies, print queue, discounts, and analytics.</div></div>
+      <button class="primary" onclick="saveAll()">Save All Changes</button>
+    </div>
+
+    <section id="overview" class="page active">
+      <div class="stats" id="overviewStats"></div>
+      <div class="card"><h2>Today’s Activity</h2><div id="todayActivity"></div></div>
+      <div class="card"><h2>Upcoming Sessions</h2><div id="upcomingSessions"></div></div>
+    </section>
+
+    <section id="bookings" class="page">
+      <div class="card"><h2>Bookings Manager</h2><p class="small">Owner sees full money details. Employee sees paid/pending/cash/card only, not full financial analytics.</p></div>
+      <div id="bookingList"></div>
+      <div class="card">
+        <h2>Add Manual Booking</h2>
+        <div class="grid">
+          <div><label>CUSTOMER NAME</label><input id="manualName"></div>
+          <div><label>EMAIL</label><input id="manualEmail"></div>
+          <div><label>PHONE</label><input id="manualPhone"></div>
+          <div><label>PACKAGE</label><select id="manualService"></select></div>
+          <div><label>SESSION</label><select id="manualSession"></select></div>
+          <div><label>TOTAL</label><input id="manualTotal" type="number"></div>
+          <div><label>PAID STATUS</label><select id="manualPaid"><option>Not Paid</option><option>Paid</option><option>Deposit Paid</option></select></div>
+          <div><label>PAYMENT METHOD</label><select id="manualMethod"><option>Not Selected</option><option>Cash</option><option>Card</option><option>PayPal</option><option>Stripe</option><option>Square</option></select></div>
+        </div>
+        <button class="green" onclick="addManualBooking()">Add Booking</button>
+      </div>
+    </section>
+
+    <section id="sessions" class="page">
+      <div class="card"><h2>Session Manager</h2><p class="small">Add sessions, edit future dates, slot counts, and move customers to another session.</p></div>
+      <div id="sessionList"></div>
+      <div class="card">
+        <h2>Add Session</h2>
+        <div class="grid">
+          <div><label>PACKAGE</label><select id="sessService"></select></div>
+          <div><label>DATE</label><input id="sessDate" type="date"></div>
+          <div><label>TIME</label><input id="sessTime" type="time"></div>
+          <div><label>MAX SLOTS</label><input id="sessMax" type="number" value="10"></div>
+          <div><label>BOOKED</label><input id="sessBooked" type="number" value="0"></div>
+        </div>
+        <button class="green" onclick="addSession()">Add Session</button>
+      </div>
+    </section>
+
+    <section id="calendar" class="page">
+      <div class="card"><h2>Calendar & Blackout Dates</h2><p class="small">Block closed dates, holidays, resort blackout dates, or unavailable days.</p></div>
+      <div class="card">
+        <div class="grid">
+          <div><label>BLACKOUT DATE</label><input id="blackoutDate" type="date"></div>
+          <div><label>REASON</label><input id="blackoutReason" placeholder="Closed / Holiday / Resort unavailable"></div>
+        </div>
+        <button class="primary" onclick="addBlackout()">Add Blackout Date</button>
+      </div>
+      <div id="blackoutList"></div>
+      <div class="card"><h2 id="calendarTitle">Calendar</h2><div class="calendar" id="calendarGrid"></div></div>
+    </section>
+
+    <section id="financials" class="page ownerOnly">
+      <div class="stats" id="financeStats"></div>
+      <div class="card"><h2>Owner Financials</h2><p class="small">Only owner sees daily, weekly, monthly revenue, payment method totals, and expenses.</p></div>
+      <div class="card">
+        <h2>Add Expense</h2>
+        <div class="grid">
+          <div><label>DATE</label><input id="expenseDate" type="date"></div>
+          <div><label>DESCRIPTION</label><input id="expenseDesc"></div>
+          <div><label>AMOUNT</label><input id="expenseAmount" type="number"></div>
+          <div><label>CATEGORY</label><select id="expenseCategory"><option>Supplies</option><option>Payroll</option><option>Resort Fee</option><option>Marketing</option><option>Transportation</option><option>Other</option></select></div>
+        </div>
+        <button class="green" onclick="addExpense()">Add Expense</button>
+      </div>
+      <div id="expenseList"></div>
+    </section>
+
+    <section id="analytics" class="page ownerOnly">
+      <div class="card"><h2>Owner Analytics</h2><p class="small">Daily, weekly, monthly bookings, paid totals, unpaid totals, package performance, cash/card breakdown.</p></div>
+      <div class="stats" id="analyticsStats"></div>
+      <div class="card"><h2>Package Performance</h2><div id="packageAnalytics"></div></div>
+      <div class="card"><h2>Payment Breakdown</h2><div id="paymentAnalytics"></div></div>
+    </section>
+
+    <section id="employee-today" class="page">
+      <div class="stats" id="employeeStats"></div>
+      <div class="card"><h2>Employee Today</h2><p class="small">Employee can see today's bookings, paid/pending, and cash/card status. No owner financial analytics.</p></div>
+      <div id="employeeTodayList"></div>
+    </section>
+
+
+    <section id="packages" class="page ownerOnly">
+      <div class="card"><h2>Package Manager</h2><p class="small">Add/edit packages, prices, images, descriptions, pricing rules, and active/hidden status.</p></div>
+      <button class="gold" onclick="restoreDefaultPackages()">Restore 6 Default Packages</button><div id="packageList"></div>
+      <div class="card">
+        <h2>Add New Package</h2>
+        <div class="grid">
+          <div><label>PACKAGE NAME</label><input id="newName"></div>
+          <div><label>UNIT</label><input id="newUnit" placeholder="per group / per person"></div>
+          <div><label>DURATION</label><input id="newDuration" placeholder="2 hours"></div>
+          <div><label>TYPE</label><select id="newType"><option value="solo">Per Guest</option><option value="pair">Flat Pair Price</option><option value="family">Flat Family Price</option><option value="group">Group Per Person Min 6</option><option value="kids">Kids Per Child</option></select></div>
+          <div><label>8x10 PRICE</label><input id="newP8" type="number"></div>
+          <div><label>11x14 PRICE</label><input id="newP11" type="number"></div>
+        </div>
+        <label>DESCRIPTION</label><textarea id="newDesc"></textarea>
+        <label>IMAGE URL OR UPLOAD</label><input id="newImgUrl" placeholder="./image.png or image URL"><input id="newImgFile" type="file" accept="image/*">
+        <button class="green" onclick="addPackage()">Add Package</button>
+      </div>
+    </section>
+
+
+    <section id="archive" class="page ownerOnly">
+      <div class="card"><h2>Booking Archive / Dispute Records</h2><p class="small">Owner-only archive for dispute records, customer photo, signature, payment status, and booking details.</p></div>
+      <div id="archiveList"></div>
+    </section>
+
+    <section id="canvas" class="page">
+      <div class="card"><h2>Canvas Print Queue</h2><p class="small">Track pictures that need to be reviewed, outlined, printed, or completed.</p></div>
+      <div id="canvasList"></div>
+      <div class="card">
+        <h2>Add Canvas Request</h2>
+        <div class="grid">
+          <div><label>CUSTOMER</label><input id="canvasCustomer"></div>
+          <div><label>CANVAS SIZE</label><select id="canvasSize"><option>8x10</option><option>11x14</option><option>16x20</option></select></div>
+          <div><label>TYPE</label><select id="canvasType"><option>Customer Upload</option><option>Design Library</option></select></div>
+          <div><label>STATUS</label><select id="canvasStatus"><option>Needs Review</option><option>Outline Needed</option><option>Ready To Print</option><option>Printed</option><option>Completed</option></select></div>
+        </div>
+        <label>UPLOAD PHOTO</label><input id="canvasFile" type="file" accept="image/*">
+        <button class="green" onclick="addCanvasRequest()">Add Canvas</button>
+      </div>
+    </section>
+
+    <section id="inventory" class="page">
+      <div class="card"><h2>Supplies & Ordering</h2><p class="small">Supply list, low stock, and things that need to be ordered.</p></div>
+      <div id="inventoryList"></div>
+      <div class="card">
+        <h2>Add Supply</h2>
+        <div class="grid">
+          <div><label>ITEM</label><input id="supplyName"></div>
+          <div><label>QUANTITY</label><input id="supplyQty" type="number"></div>
+          <div><label>MINIMUM NEEDED</label><input id="supplyMin" type="number"></div>
+          <div><label>CATEGORY</label><select id="supplyCategory"><option>Canvas</option><option>Paint</option><option>Brushes</option><option>Drinks</option><option>Aprons</option><option>Office</option><option>Other</option></select></div>
+        </div>
+        <button class="green" onclick="addSupply()">Add Supply</button>
+      </div>
+    </section>
+
+
+    <section id="supplies-used" class="page">
+      <div class="card">
+        <h2>Supplies Used / Reorder Needed</h2>
+        <p class="small">Employees can record what was used after each session. The dashboard calculates what is left and shows what needs to be ordered.</p>
+      </div>
+
+      <div class="card">
+        <h2>Record Supplies Used</h2>
+        <div class="grid">
+          <div><label>ITEM</label><select id="usedSupplyItem"></select></div>
+          <div><label>QUANTITY USED</label><input id="usedQty" type="number" value="1"></div>
+          <div><label>SESSION / JOB NOTES</label><input id="usedNotes" placeholder="Couples Sunset, Kids Session, Private Group, etc."></div>
+          <div><label>DATE USED</label><input id="usedDate" type="date"></div>
+        </div>
+        <button class="green" onclick="recordSupplyUsed()">Record Used</button>
+      </div>
+
+      <div class="card">
+        <h2>Reorder Needed</h2>
+        <div id="reorderNeededList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Usage History</h2>
+        <div id="supplyUsageHistory"></div>
+      </div>
+    </section>
+
+    <section id="discounts" class="page">
+      <div class="card"><h2>Approved Discounts</h2><p class="small">Create owner-approved discount codes that staff can apply to bookings.</p></div>
+      <div id="discountList"></div>
+      <div class="card">
+        <h2>Add Discount</h2>
+        <div class="grid">
+          <div><label>CODE</label><input id="discountCode" placeholder="RESORT20"></div>
+          <div><label>TYPE</label><select id="discountType"><option value="percent">Percent Off</option><option value="flat">Dollar Off</option></select></div>
+          <div><label>VALUE</label><input id="discountValue" type="number"></div>
+          <div><label>APPROVED BY</label><input id="discountApproved" placeholder="Owner"></div>
+        </div>
+        <button class="green" onclick="addDiscount()">Add Discount</button>
+      </div>
+    </section>
+  
+    <section id="website" class="page ownerOnly"><div class="card"><h2>Website Content</h2><label>HERO TAG</label><input id="heroTag"><label>HERO TITLE</label><input id="heroTitle"><label>HERO SUBTITLE</label><textarea id="heroSub"></textarea><label>WELCOME TITLE</label><input id="welcomeTitle"><label>WELCOME MESSAGE</label><textarea id="welcomeMsg"></textarea><label><input id="showReviews" type="checkbox" style="width:auto"> Show Reviews Section</label></div></section>
+
+    <section id="contact" class="page ownerOnly"><div class="card"><h2>Contact Information</h2><div class="grid"><div><label>EMAIL</label><input id="email"></div><div><label>PHONE</label><input id="phone"></div><div><label>WHATSAPP</label><input id="whatsapp"></div><div><label>ADDRESS</label><input id="address"></div><div><label>INSTAGRAM</label><input id="instagram"></div><div><label>FACEBOOK</label><input id="facebook"></div><div><label>TIKTOK</label><input id="tiktok"></div></div></div></section>
+
+    <section id="partners" class="page ownerOnly"><div class="card"><h2>Resort Partners</h2></div><div id="partnerList"></div><div class="card"><label>RESORT / HOTEL NAME</label><input id="partnerName"><label>DESCRIPTION</label><textarea id="partnerDesc"></textarea><label>WEBSITE</label><input id="partnerWeb"><button class="green" onclick="addPartner()">Add Partner</button></div></section>
+
+    <section id="reviews" class="page ownerOnly"><div class="card"><h2>Reviews</h2></div><div id="reviewList"></div><div class="card"><label>CUSTOMER NAME</label><input id="reviewName"><label>RATING</label><select id="reviewRating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select><label>REVIEW</label><textarea id="reviewText"></textarea><button class="green" onclick="addReview()">Add Review</button></div></section>
+
+    <section id="payments" class="page ownerOnly"><div class="card"><h2>Payment Settings</h2><div class="note">Fields are ready for Stripe, PayPal, or Square. Real checkout still needs later connection.</div><label><input id="stripe" type="checkbox" style="width:auto"> Enable Stripe</label><label>STRIPE DISPLAY NAME</label><input id="stripeName"><label>STRIPE PUBLISHABLE KEY</label><input id="stripePublishableKey"><label>STRIPE SECRET KEY</label><input id="stripeSecretKey" type="password"><label><input id="paypal" type="checkbox" style="width:auto"> Enable PayPal</label><label>PAYPAL DISPLAY NAME</label><input id="paypalName"><label>PAYPAL CLIENT ID</label><input id="paypalClientId"><label>PAYPAL SECRET</label><input id="paypalSecret" type="password"><label><input id="square" type="checkbox" style="width:auto"> Enable Square</label><label>SQUARE DISPLAY NAME</label><input id="squareName"><label>SQUARE APPLICATION ID</label><input id="squareApplicationId"><label>SQUARE LOCATION ID</label><input id="squareLocationId"><label>SQUARE ACCESS TOKEN</label><input id="squareAccessToken" type="password"><label>PAYMENT MESSAGE SHOWN ON WEBSITE</label><textarea id="paymentMessage"></textarea></div></section>
+
+  </main>
+</div>
+
+<script>
+const IMG={logo:'./3d1fdc61f8eaa26504c7bd1883b2c4fb959b5490d7bd7009ac6072700071b41a.png',hero:'./39d01f7abfeb50e54e5ab81481fd80d8233236bf0339ba6d2d7c2c936ba2e2fd.png',group:'./68deb8a90498177c24089254cb9937241a1b513acf39160764d000df7e2b946e.png',kids:'./983bc7d94d5c2d47673d32868ffe7dac1d71ca708b8da0e0c70f31ca9df92593.png',family:'./ae820f1ff6cdaea3060e7f1fbcdaf3f6781200743201d72a778b68c6f4d1c428.png',mother:'./95ac79f14f4894531c5ef1bb9b1e005cd1053c35a2755d3a04ba36f7939cb841.png',father:'./d6f477e5408d0727ea9924e128acf14fdbbbc297fb8c0ac0896381cb57acaf95.png'};
+const DEFAULT_SERVICES=[{id:'couples',name:'🥂 Couples Sunset',price8:180,price11:200,type:'pair',active:true},{id:'solo',name:'🐚 Solo Escape',price8:85,price11:105,type:'solo',active:true},{id:'group',name:'🎉 Private Group',price8:150,price11:150,type:'group',active:true},{id:'kids',name:'🧒 Kids Session',price8:40,price11:40,type:'kids',active:true},{id:'family',name:'Family Session',price8:250,price11:270,type:'family',active:true},{id:'mother',name:'Mother / Father & Daughter',price8:150,price11:170,type:'pair',active:true}];
+function addDays(n){let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function money(n){return '$'+Number(n||0).toLocaleString()}
+function today(){return new Date().toISOString().slice(0,10)}
+function get(k,def){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(def))}catch(e){return def}}
+function set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function siteData(){let d=get('ssc_site_data_v4',{});if(!d.services)d.services=DEFAULT_SERVICES;if(!d.sessions)d.sessions=[{serviceId:'couples',date:addDays(1),time:'10:00',max:10,booked:3,active:true},{serviceId:'group',date:addDays(2),time:'14:00',max:10,booked:5,active:true},{serviceId:'kids',date:addDays(3),time:'14:00',max:10,booked:4,active:true}];return d}
+function saveSite(d){set('ssc_site_data_v4',d)}
+function ensureData(){
+  if(!Array.isArray(DATA.services)||DATA.services.length===0){
+    DATA.services=structuredClone(DEFAULT.services);
+  } else {
+    // Restore any missing default packages while keeping custom packages you add later.
+    DEFAULT.services.forEach(def=>{
+      if(!DATA.services.some(s=>s.id===def.id)){
+        DATA.services.push(structuredClone(def));
+      }
+    });
+  }
+
+  if(!Array.isArray(DATA.sessions)||DATA.sessions.length===0){
+    DATA.sessions=defaultSessions();
+  } else {
+    // If old sessions point to old ID "mother", update to the new parentdaughter ID.
+    DATA.sessions.forEach(s=>{
+      if(s.serviceId==='mother') s.serviceId='parentdaughter';
+    });
+  }
+
+  DATA.services.forEach(s=>{
+    if(s.active===undefined)s.active=true;
+    if(s.price8===undefined && s.price!==undefined)s.price8=s.price;
+    if(s.price11===undefined)s.price11=s.price8||0;
+    if(!s.type)s.type='solo';
+    if(!s.id)s.id='pkg_'+Date.now()+Math.random().toString(36).slice(2);
+  });
+
+  DATA.sessions.forEach(s=>{
+    if(s.active===undefined)s.active=true;
+    if(!s.status)s.status='Active';
+  });
+
+  saveSite(DATA);
+}
+
+let ROLE='owner',DATA=siteData();
+
+function archiveRecords(){return get('ssc_booking_archive_v1',[])}
+function saveArchiveRecords(v){set('ssc_booking_archive_v1',v)}
+
+function bookings(){return get('ssc_bookings_v4',[])}
+function saveBookings(v){set('ssc_bookings_v4',v)}
+function expenses(){return get('ssc_expenses_v1',[])}
+function saveExpenses(v){set('ssc_expenses_v1',v)}
+function inventory(){return get('ssc_inventory_v1',[{name:'8x10 Canvas',qty:5,min:10,category:'Canvas'},{name:'11x14 Canvas',qty:22,min:10,category:'Canvas'},{name:'Paint Sets',qty:15,min:8,category:'Paint'},{name:'White Wine',qty:3,min:12,category:'Drinks'},{name:'Aprons',qty:40,min:20,category:'Aprons'}])}
+function saveInventory(v){set('ssc_inventory_v1',v)}
+function discounts(){return get('ssc_discounts_v1',[{code:'WELCOME10',type:'percent',value:10,approved:'Owner',active:true}])}
+function saveDiscounts(v){set('ssc_discounts_v1',v)}
+function blackouts(){return get('ssc_blackouts_v1',[])}
+function saveBlackouts(v){set('ssc_blackouts_v1',v)}
+function canvases(){return get('ssc_canvas_v1',[])}
+function saveCanvases(v){set('ssc_canvas_v1',v)}
+function doLogin(){let r=roleSelect.value,p=pw.value;if((r==='owner'&&p==='Love2026!!')||(r==='employee'&&p==='Staff2026!!')){ROLE=r;loginBox.style.display='none';appBox.style.display='block';buildNav();loadAll()}else alert('Wrong password')}
+function buildNav(){let owner=[['overview','Overview'],['bookings','Bookings'],['sessions','Sessions'],['calendar','Calendar / Blackout'],['financials','Financials'],['analytics','Analytics'],['packages','Package Manager'],['archive','Booking Archive / Disputes'],['canvas','Canvas Print Queue'],['inventory','Supplies / Orders'],['supplies-used','Supplies Used / Reorder'],['discounts','Discounts'],['website','Website Content'],['contact','Contact Info'],['partners','Resort Partners'],['reviews','Reviews'],['payments','Payment Settings']];let emp=[['employee-today','Today / Payments'],['bookings','Bookings'],['sessions','Sessions'],['calendar','Calendar'],['canvas','Canvas Print Queue'],['inventory','Supplies'],['supplies-used','Supplies Used'],['discounts','Approved Discounts']];let list=ROLE==='owner'?owner:emp;roleBadge.textContent=ROLE==='owner'?'OWNER DASHBOARD':'EMPLOYEE DASHBOARD';dashTitle.textContent=ROLE==='owner'?'Owner Dashboard':'Employee Dashboard';navArea.innerHTML=list.map((x,i)=>`<button class="navbtn ${i===0?'active':''}" onclick="showPage('${x[0]}',this)">${x[1]}</button>`).join('');showPage(list[0][0],navArea.querySelector('button'))}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');loadAll()}
+function saveAll(){saveSite(DATA);alert('Saved.')}
+function loadAll(){ensureData();DATA=siteData();renderOverview();renderBookings();renderSessions();renderCalendar();renderFinancials();renderAnalytics();renderEmployee();renderCanvas();renderInventory();renderSuppliesUsed();renderPackages();renderArchive();}
+function fillSelects(){
+  ensureData();
+
+  let serviceOptions = DATA.services
+    .filter(s=>s.active!==false)
+    .map(s=>`<option value="${s.id}">${s.name}</option>`)
+    .join('');
+
+  ['manualService','sessService'].forEach(id=>{
+    let e=document.getElementById(id);
+    if(e){
+      e.innerHTML = serviceOptions || '<option value="">No packages found</option>';
+    }
+  });
+
+  let sessionOptions = DATA.sessions
+    .filter(s=>s.active!==false && (s.status||'Active')!=='Canceled')
+    .map((s,i)=>`<option value="${i}">${s.date} ${s.time} - ${svcName(s.serviceId)}</option>`)
+    .join('');
+
+  ['manualSession'].forEach(id=>{
+    let e=document.getElementById(id);
+    if(e){
+      e.innerHTML = sessionOptions || '<option value="">No sessions found</option>';
+    }
+  });
+}
+
+function recordSupplyUsed(){
+  let idx=Number(usedSupplyItem.value);
+  let qty=Number(usedQty.value||0);
+  if(isNaN(idx)||qty<=0){alert('Please select an item and quantity used.');return}
+  let inv=inventory();
+  let item=inv[idx];
+  if(!item){alert('Supply item not found.');return}
+  item.qty=Math.max(0,Number(item.qty||0)-qty);
+  saveInventory(inv);
+  let hist=supplyUsage();
+  hist.unshift({item:item.name,qty:qty,date:usedDate.value||today(),notes:usedNotes.value});
+  saveSupplyUsage(hist);
+  usedQty.value=1;
+  usedNotes.value='';
+  loadAll();
+}
+function deleteSupplyUsage(i){
+  let hist=supplyUsage();
+  hist.splice(i,1);
+  saveSupplyUsage(hist);
+  loadAll();
+}
+
+function renderDiscounts(){if(!discountList)return;let d=discounts();discountList.innerHTML=d.length?d.map((x,i)=>`<div class="row row4"><b>${x.code}</b><span>${x.type==='percent'?x.value+'%':'$'+x.value} off</span><span>Approved: ${x.approved}</span><span><button class="light" onclick="let a=discounts();a[${i}].active=!a[${i}].active;saveDiscounts(a);loadAll()">${x.active?'Active':'Inactive'}</button> <button class="redbtn" onclick="let a=discounts();a.splice(${i},1);saveDiscounts(a);loadAll()">Delete</button></span></div>`).join(''):'<div class="card">No discounts.</div>'}
+function addDiscount(){let d=discounts();d.push({code:discountCode.value,type:discountType.value,value:Number(discountValue.value||0),approved:discountApproved.value||'Owner',active:true});saveDiscounts(d);loadAll()}
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function renderPackages(){
+  if(!document.getElementById('packageList'))return;
+  packageList.innerHTML=DATA.services.map((s,i)=>`<div class="card"><div class="row"><img src="${s.img||IMG.logo}"><div><label>NAME</label><input value="${esc(s.name)}" onchange="DATA.services[${i}].name=this.value"><label>DESCRIPTION</label><textarea onchange="DATA.services[${i}].desc=this.value">${esc(s.desc||'')}</textarea></div><div><label>8x10 PRICE</label><input type="number" value="${s.price8||0}" onchange="DATA.services[${i}].price8=Number(this.value)"><label>11x14 PRICE</label><input type="number" value="${s.price11||0}" onchange="DATA.services[${i}].price11=Number(this.value)"></div><div><label>UNIT</label><input value="${esc(s.unit||'')}" onchange="DATA.services[${i}].unit=this.value"><label>DURATION</label><input value="${esc(s.duration||'')}" onchange="DATA.services[${i}].duration=this.value"><label>PRICING RULE</label><select onchange="DATA.services[${i}].type=this.value"><option value="solo" ${s.type==='solo'?'selected':''}>Per Guest</option><option value="pair" ${s.type==='pair'?'selected':''}>Flat Pair Price</option><option value="family" ${s.type==='family'?'selected':''}>Flat Family Price</option><option value="group" ${s.type==='group'?'selected':''}>Group Per Person Min 6</option><option value="kids" ${s.type==='kids'?'selected':''}>Kids Per Child</option></select></div><div><span class="badge ${s.active?'b-green':'b-red'}">${s.active?'Active':'Hidden'}</span><br><button class="light" onclick="DATA.services[${i}].active=!DATA.services[${i}].active;saveSite(DATA);loadAll()">${s.active?'Hide':'Show'}</button><button class="primary" onclick="saveSite(DATA);alert('Package saved')">Save</button><input type="file" accept="image/*" onchange="packageImage(${i},this)"><button class="redbtn" onclick="if(confirm('Delete package?')){DATA.services.splice(${i},1);saveSite(DATA);loadAll()}">Delete</button></div></div></div>`).join('');
+}
+function packageImage(i,input){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=e=>{DATA.services[i].img=e.target.result;saveSite(DATA);loadAll()};r.readAsDataURL(file)}
+function addPackage(){
+  ensureData();
+  let id='pkg_'+Date.now();
+  let img=newImgUrl.value||IMG.logo;
+  let make=()=>{
+    DATA.services.push({
+      id:id,
+      name:newName.value||'New Package',
+      unit:newUnit.value||'per booking',
+      duration:newDuration.value||'2 hours',
+      price8:Number(newP8.value||0),
+      price11:Number(newP11.value||newP8.value||0),
+      type:newType.value||'solo',
+      active:true,
+      img:img,
+      desc:newDesc.value||''
+    });
+    saveSite(DATA);
+    newName.value='';
+    newUnit.value='';
+    newDuration.value='';
+    newP8.value='';
+    newP11.value='';
+    newDesc.value='';
+    newImgUrl.value='';
+    newImgFile.value='';
+    loadAll();
+    alert('New package added.');
+  };
+  let f=newImgFile.files[0];
+  if(f){
+    let r=new FileReader();
+    r.onload=e=>{img=e.target.result;make()};
+    r.readAsDataURL(f);
+  } else {
+    make();
+  }
+}
+function downloadArchive(i){let x=archiveRecords()[i];let blob=new Blob([`Sip & Stroke Booking Archive\n\nCustomer: ${x.name||''}\nEmail: ${x.email||''}\nPhone: ${x.phone||''}\nDate: ${x.date||''}\nPackage: ${x.packageName||x.serviceName||''}\nTotal: ${money(x.total)}\nPaid: ${x.paidStatus||''}\nMethod: ${x.paymentMethod||''}\nCreated: ${x.created||''}\n\nNotes:\n${x.notes||''}`],{type:'text/plain'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='booking-archive.txt';a.click();URL.revokeObjectURL(url)}
+
+
+function deleteBooking(i){if(ROLE!=='owner')return alert('Only owner can delete.');if(!confirm('Delete this booking?'))return;let bs=bookings(),removed=bs.splice(i,1)[0];saveBookings(bs);let ar=archiveRecords(),mi=ar.findIndex(a=>(removed.created&&a.created===removed.created)||((a.email||'')===(removed.email||'')&&(a.date||'')===(removed.date||'')));if(mi>=0&&confirm('Also delete matching archive record?')){ar.splice(mi,1);saveArchiveRecords(ar)}loadAll()}
+
+
+function restoreDefaultPackages(){
+  if(!confirm('Restore the 6 default packages? This keeps custom packages and adds back any missing default ones.'))return;
+  ensureData();
+  DEFAULT.services.forEach(def=>{
+    let existing=DATA.services.find(s=>s.id===def.id);
+    if(existing){
+      Object.assign(existing, structuredClone(def));
+    } else {
+      DATA.services.push(structuredClone(def));
+    }
+  });
+  saveSite(DATA);
+  loadAll();
+  alert('Default packages restored.');
+}
+
+</script>
+</body>
+</html>
