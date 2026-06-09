@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Delete Test Booking</title>
+<style>
+body{font-family:Arial,sans-serif;background:#073B4C;margin:0;color:#073B4C;min-height:100vh;padding:24px}
+.card{background:#fff;border-radius:18px;padding:20px;max-width:900px;margin:0 auto 16px;box-shadow:0 15px 40px rgba(0,0,0,.25)}
+h1{margin-top:0}
+.row{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr auto;gap:10px;align-items:center;border-top:1px solid #eee;padding:12px 0}
+button{border:0;border-radius:999px;padding:10px 16px;font-weight:bold;cursor:pointer}
+.red{background:#dc3545;color:white}
+.green{background:#00BFA5;color:white}
+.gray{background:#e9eef0;color:#073B4C}
+.small{font-size:13px;color:#60777f;line-height:1.5}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#ffe9e3;color:#c7432a;font-size:12px;font-weight:bold}
+@media(max-width:750px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Delete Test Booking</h1>
+  <p class="small">This page reads the bookings saved in this browser and lets you delete the test booking. It checks both old and new dashboard storage.</p>
+  <button class="green" onclick="loadBookings()">Refresh List</button>
+  <button class="red" onclick="clearAll()">Clear All Bookings</button>
+  <button class="gray" onclick="location.href='dashboard.html'">Back to Dashboard</button>
+</div>
+<div class="card">
+  <h2>Bookings Found</h2>
+  <div id="list"></div>
+</div>
+<script>
+function safeParse(key, fallback){
+  try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));}
+  catch(e){return fallback;}
+}
+function saveJSON(key,val){localStorage.setItem(key,JSON.stringify(val));}
+function bookingName(b){return b.name||b.customer||b.fullName||'Customer';}
+function bookingEmail(b){return b.email||'';}
+function bookingPkg(b){return b.serviceName||b.packageName||b.package||b.packageId||'';}
+function bookingDate(b){return b.date||b.sessionDate||'';}
+function loadBookings(){
+  let rows=[];
+
+  let newBookings=safeParse('ssc_bookings_v4',[]);
+  newBookings.forEach((b,i)=>rows.push({store:'ssc_bookings_v4',index:i,b}));
+
+  let oldData=safeParse('ssc_v3_data',{});
+  if(oldData && Array.isArray(oldData.bookings)){
+    oldData.bookings.forEach((b,i)=>rows.push({store:'ssc_v3_data.bookings',index:i,b}));
+  }
+
+  let archive=safeParse('ssc_booking_archive_v1',[]);
+  archive.forEach((b,i)=>rows.push({store:'ssc_booking_archive_v1',index:i,b}));
+
+  const list=document.getElementById('list');
+  if(!rows.length){
+    list.innerHTML='<p class="small">No bookings found in this browser.</p>';
+    return;
+  }
+
+  list.innerHTML=rows.map((r,n)=>{
+    let b=r.b;
+    return `<div class="row">
+      <div><b>${bookingName(b)}</b><div class="small">${bookingEmail(b)}</div></div>
+      <div>${bookingPkg(b)}</div>
+      <div>${bookingDate(b)}</div>
+      <div><span class="badge">${r.store}</span></div>
+      <div><button class="red" onclick="deleteOne('${r.store}',${r.index})">Delete</button></div>
+    </div>`;
+  }).join('');
+}
+function deleteOne(store,index){
+  if(!confirm('Delete this booking record?')) return;
+  if(store==='ssc_bookings_v4'){
+    let a=safeParse('ssc_bookings_v4',[]);
+    a.splice(index,1);
+    saveJSON('ssc_bookings_v4',a);
+  }
+  if(store==='ssc_booking_archive_v1'){
+    let a=safeParse('ssc_booking_archive_v1',[]);
+    a.splice(index,1);
+    saveJSON('ssc_booking_archive_v1',a);
+  }
+  if(store==='ssc_v3_data.bookings'){
+    let d=safeParse('ssc_v3_data',{});
+    if(Array.isArray(d.bookings)){
+      d.bookings.splice(index,1);
+      saveJSON('ssc_v3_data',d);
+    }
+  }
+  loadBookings();
+}
+function clearAll(){
+  if(!confirm('Clear ALL bookings and archive records from this browser?')) return;
+  saveJSON('ssc_bookings_v4',[]);
+  saveJSON('ssc_booking_archive_v1',[]);
+  let d=safeParse('ssc_v3_data',{});
+  if(d && Array.isArray(d.bookings)){
+    d.bookings=[];
+    saveJSON('ssc_v3_data',d);
+  }
+  loadBookings();
+}
+loadBookings();
+</script>
+</body>
+</html>
